@@ -29,8 +29,13 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
-import javax.transaction.Status;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import oraProxyTest.MyBeans;
@@ -45,7 +50,7 @@ public class Client implements ClientInVM {
 
 	}
 
-	public void beginWork() throws Exception {
+	public void beginWork() {
 		log.info("beginWork");
 
 		Properties prop = new Properties();
@@ -55,7 +60,14 @@ public class Client implements ClientInVM {
 				"org.jboss.naming:org.jnp.interfaces");
 		prop.put(Context.PROVIDER_URL, "jnp://127.0.0.1:1099");
 
-		InitialContext ctx = new InitialContext(prop);
+		InitialContext ctx;
+		try {
+			ctx = new InitialContext(prop);
+		} catch (NamingException e1) {
+			log.warning("fail on InitialContext");
+			e1.printStackTrace();
+			return;
+		}
 
 		log.info("InitialContext created for Client");
 		log.info("------------------> startUtx()");
@@ -63,7 +75,13 @@ public class Client implements ClientInVM {
 		log.info("------------------> getUtx()");
 		UserTransaction utx = null;
 
-		utx = (UserTransaction) ctx.lookup("UserTransaction");
+		try {
+			utx = (UserTransaction) ctx.lookup("UserTransaction");
+		} catch (NamingException e1) {
+			log.warning("fail finding UserTransaction");
+			e1.printStackTrace();
+			return;
+		}
 		log.info("------------------> UTX is initialized!");
 
 		if (utx == null) {
@@ -71,30 +89,146 @@ public class Client implements ClientInVM {
 			return;
 		}
 
-		utx.begin();
+		try {
+			utx.begin();
+		} catch (NotSupportedException e1) {
+			e1.printStackTrace();
+			return;
+		} catch (SystemException e1) {
+			e1.printStackTrace();
+			return;
+		}
 
-		MyBeans beanOne = (MyBeans) PortableRemoteObject.narrow(
-				ctx.lookup("Beanone/local"), MyBeans.class);
+		MyBeans beanOne;
+		try {
+			beanOne = (MyBeans) PortableRemoteObject.narrow(
+					ctx.lookup("Beanone/local"), MyBeans.class);
+		} catch (ClassCastException e1) {
+			e1.printStackTrace();
+			return;
+		} catch (NamingException e1) {
+			e1.printStackTrace();
+			return;
+		}
 
 		beanOne.setMeaningless("m1");
 
 		log.info("persisting beanOne");
 		beanOne.persist();
 
-		MyBeans beanTwo = (MyBeans) PortableRemoteObject.narrow(
-				ctx.lookup("Beantwo/local"), MyBeans.class);
+		MyBeans beanTwo;
+		try {
+			beanTwo = (MyBeans) PortableRemoteObject.narrow(
+					ctx.lookup("Beantwo/local"), MyBeans.class);
+		} catch (ClassCastException e1) {
+			e1.printStackTrace();
+			return;
+		} catch (NamingException e1) {
+			e1.printStackTrace();
+			return;
+		}
 
 		//beanTwo.setMeaningless("m2");
 
 		log.info("persisting beanTwo");
-		beanTwo.persist();
-
-		log.info(Integer.toString(utx.getStatus()));
-		if (utx.getStatus() != Status.STATUS_MARKED_ROLLBACK) {
-			utx.commit();
-		} else {
-			log.warning("Status.STATUS_MARKED_ROLLBACK");
-		}
+		try {
+				beanTwo.persist();
+				log.info("------------------------>Beginning commit");
+				utx.commit();
+			} catch (SecurityException e) {
+				try {
+					utx.rollback();
+				} catch (IllegalStateException e1) {
+					e1.printStackTrace();
+				} catch (SecurityException e1) {
+					e1.printStackTrace();
+				} catch (SystemException e1) {
+					e1.printStackTrace();
+				}
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				try {
+					utx.rollback();
+				} catch (IllegalStateException e1) {
+					e1.printStackTrace();
+				} catch (SecurityException e1) {
+					e1.printStackTrace();
+				} catch (SystemException e1) {
+					e1.printStackTrace();
+				}
+				e.printStackTrace();
+			} catch (RollbackException e) {
+				try {
+					utx.rollback();
+				} catch (IllegalStateException e1) {
+					
+					e1.printStackTrace();
+				} catch (SecurityException e1) {
+					
+					e1.printStackTrace();
+				} catch (SystemException e1) {
+					
+					e1.printStackTrace();
+				}
+				e.printStackTrace();
+			} catch (HeuristicMixedException e) {
+				try {
+					utx.rollback();
+				} catch (IllegalStateException e1) {
+					
+					e1.printStackTrace();
+				} catch (SecurityException e1) {
+					
+					e1.printStackTrace();
+				} catch (SystemException e1) {
+					
+					e1.printStackTrace();
+				}
+				e.printStackTrace();
+			} catch (HeuristicRollbackException e) {
+				try {
+					utx.rollback();
+				} catch (IllegalStateException e1) {
+					
+					e1.printStackTrace();
+				} catch (SecurityException e1) {
+					
+					e1.printStackTrace();
+				} catch (SystemException e1) {
+					
+					e1.printStackTrace();
+				}
+				e.printStackTrace();
+			} catch (SystemException e) {
+				try {
+					utx.rollback();
+				} catch (IllegalStateException e1) {
+					
+					e1.printStackTrace();
+				} catch (SecurityException e1) {
+					
+					e1.printStackTrace();
+				} catch (SystemException e1) {
+					
+					e1.printStackTrace();
+				}
+				e.printStackTrace();
+			} finally {
+				log.info("---------------> Finally");
+				try {
+					utx.rollback();
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalStateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SystemException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		
 
 	}
 
