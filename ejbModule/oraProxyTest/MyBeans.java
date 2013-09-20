@@ -1,9 +1,9 @@
 package oraProxyTest;
 
+import javax.ejb.Local;
 import javax.ejb.Remote;
-import javax.ejb.Remove;
 
-@Remote
+@Local
 public interface MyBeans {
 
 	public abstract long getId();
