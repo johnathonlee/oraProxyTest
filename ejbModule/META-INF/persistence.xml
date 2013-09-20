@@ -6,6 +6,10 @@
 		<class>oraProxyTest.Beantwo</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect" />
+			
+			<property name="hibernate.connection.provider_class" value="oraProxyTest.ProxyUserConnectionProvider"/>
+			<property name="hibernate.connection.datasource" value="java:oraProxyTest" />
+			
 			<property name="hibernate.connection.autocommit" value="false" />
 			<property name="hibernate.connection.defaultAutoCommit" value="false" />
 			<property name="hibernate.flush_before_completion" value="true" />
