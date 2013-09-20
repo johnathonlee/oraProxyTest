@@ -15,5 +15,7 @@ public interface MyBeans {
 	public abstract void setMeaningless(String meaningless);
 
 	public abstract void removeMe();
+	
+	public abstract void persist();
 
 }

@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
  */
 @Entity
 @Stateful
-@TransactionAttribute(TransactionAttributeType.REQUIRED)
+@TransactionAttribute(TransactionAttributeType.MANDATORY)
 @NamedQuery(name="Beanone.findAll", query="SELECT b FROM Beanone b")
 public class Beanone implements Serializable, MyBeans {
 	
@@ -85,6 +85,12 @@ public class Beanone implements Serializable, MyBeans {
 	public void removeMe() {
 		log.info("tried to remove");
 		manager.persist(this);
+	}
+
+	public void persist() {
+		log.info("persist");
+		manager.persist(this);
+		manager.flush();
 	}
 
 }

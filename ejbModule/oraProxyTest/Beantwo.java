@@ -15,6 +15,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Transient;
 
+import org.apache.log4j.Logger;
+
 
 /**
  * The persistent class for the BEANTWO database table.
@@ -35,6 +37,9 @@ public class Beantwo implements Serializable, MyBeans{
 	@SequenceGenerator(name="BEANTWO_ID_GENERATOR", sequenceName="HIBSEQUENCE")
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="BEANTWO_ID_GENERATOR")
 	private long id;
+	
+	@Transient
+	private Logger log = Logger.getLogger(Beanone.class);
 
 	private String meaningless;
 
@@ -59,5 +64,11 @@ public class Beantwo implements Serializable, MyBeans{
 
 	public void removeMe() {
 		manager.persist(this);
+	}
+	
+	public void persist() {
+		log.info("persist");
+		manager.persist(this);
+		manager.flush();
 	}
 }

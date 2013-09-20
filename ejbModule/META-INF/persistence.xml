@@ -6,6 +6,10 @@
 		<class>oraProxyTest.Beantwo</class>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect" />
+			<property name="hibernate.connection.autocommit" value="false" />
+			<property name="hibernate.connection.defaultAutoCommit" value="false" />
+			<property name="hibernate.flush_before_completion" value="true" />
+			<property name="hibernate.auto_close_session" value="true" />  
 		</properties>
-	</persistence-unit>
+	</persistence-unit> 
 </persistence>
