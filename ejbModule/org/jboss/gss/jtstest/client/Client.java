@@ -31,10 +31,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
@@ -115,26 +112,9 @@ public class Client implements ClientInVM {
 
 		log.info("persisting beanOne");
 		beanOne.persist();
-
-		MyBeans beanTwo;
+		
 		try {
-			beanTwo = (MyBeans) PortableRemoteObject.narrow(
-					ctx.lookup("Beantwo/local"), MyBeans.class);
-		} catch (ClassCastException e1) {
-			e1.printStackTrace();
-			return;
-		} catch (NamingException e1) {
-			e1.printStackTrace();
-			return;
-		}
-
-		//beanTwo.setMeaningless("m2");
-
-		log.info("persisting beanTwo");
-		try {
-				beanTwo.persist();
-				log.info("------------------------>Beginning commit");
-				utx.commit();
+			   utx.rollback();
 			} catch (SecurityException e) {
 				try {
 					utx.rollback();
@@ -157,48 +137,6 @@ public class Client implements ClientInVM {
 					e1.printStackTrace();
 				}
 				e.printStackTrace();
-			} catch (RollbackException e) {
-				try {
-					utx.rollback();
-				} catch (IllegalStateException e1) {
-					
-					e1.printStackTrace();
-				} catch (SecurityException e1) {
-					
-					e1.printStackTrace();
-				} catch (SystemException e1) {
-					
-					e1.printStackTrace();
-				}
-				e.printStackTrace();
-			} catch (HeuristicMixedException e) {
-				try {
-					utx.rollback();
-				} catch (IllegalStateException e1) {
-					
-					e1.printStackTrace();
-				} catch (SecurityException e1) {
-					
-					e1.printStackTrace();
-				} catch (SystemException e1) {
-					
-					e1.printStackTrace();
-				}
-				e.printStackTrace();
-			} catch (HeuristicRollbackException e) {
-				try {
-					utx.rollback();
-				} catch (IllegalStateException e1) {
-					
-					e1.printStackTrace();
-				} catch (SecurityException e1) {
-					
-					e1.printStackTrace();
-				} catch (SystemException e1) {
-					
-					e1.printStackTrace();
-				}
-				e.printStackTrace();
 			} catch (SystemException e) {
 				try {
 					utx.rollback();
@@ -213,23 +151,7 @@ public class Client implements ClientInVM {
 					e1.printStackTrace();
 				}
 				e.printStackTrace();
-			} finally {
-				log.info("---------------> Finally");
-				try {
-					utx.rollback();
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalStateException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SystemException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		
-
+			} 		
 	}
 
 }
